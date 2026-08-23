@@ -15,13 +15,13 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class DeletePDFUseCase implements UseCase<DeletePDFCommand, DeletePDFResponse> {
+public class DeletePdfUseCase implements UseCase<DeletePdfCommand, DeletePdfResponse> {
 
     private final PdfInfoRepository pdfInfoRepository;
 
     @Override
     @Transactional
-    public DeletePDFResponse execute(DeletePDFCommand input) {
+    public DeletePdfResponse execute(DeletePdfCommand input) {
         if (input == null || input.fileUUID() == null) {
             throw new IllegalArgumentException("File UUID must not be null.");
         }
@@ -42,6 +42,6 @@ public class DeletePDFUseCase implements UseCase<DeletePDFCommand, DeletePDFResp
             throw new RuntimeException("Could not delete physical PDF file from disk", e);
         }
 
-        return new DeletePDFResponse(fileUUID, true);
+        return new DeletePdfResponse(fileUUID, true);
     }
 }

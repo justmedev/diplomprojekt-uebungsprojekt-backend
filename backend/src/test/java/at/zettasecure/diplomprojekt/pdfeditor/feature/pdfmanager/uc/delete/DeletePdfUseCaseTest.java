@@ -16,16 +16,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DeletePDFUseCaseTest {
+class DeletePdfUseCaseTest {
 
     @Mock
     private PdfInfoRepository pdfInfoRepository;
 
-    private DeletePDFUseCase deletePDFUseCase;
+    private DeletePdfUseCase deletePDFUseCase;
 
     @BeforeEach
     void setUp() {
-        deletePDFUseCase = new DeletePDFUseCase(pdfInfoRepository);
+        deletePDFUseCase = new DeletePdfUseCase(pdfInfoRepository);
     }
 
     @Test
@@ -35,7 +35,7 @@ class DeletePDFUseCaseTest {
 
         when(pdfInfoRepository.findByFileUUID(fileUUID)).thenReturn(Optional.of(pdfInfo));
 
-        DeletePDFResponse response = deletePDFUseCase.execute(new DeletePDFCommand(fileUUID));
+        DeletePdfResponse response = deletePDFUseCase.execute(new DeletePdfCommand(fileUUID));
 
         assertTrue(response.deleted());
         assertEquals(fileUUID, response.fileUUID());
@@ -49,7 +49,7 @@ class DeletePDFUseCaseTest {
         when(pdfInfoRepository.findByFileUUID(fileUUID)).thenReturn(Optional.empty());
 
         assertThrows(PdfNotFoundException.class, () ->
-                deletePDFUseCase.execute(new DeletePDFCommand(fileUUID))
+                deletePDFUseCase.execute(new DeletePdfCommand(fileUUID))
         );
 
         verify(pdfInfoRepository, never()).delete(any());

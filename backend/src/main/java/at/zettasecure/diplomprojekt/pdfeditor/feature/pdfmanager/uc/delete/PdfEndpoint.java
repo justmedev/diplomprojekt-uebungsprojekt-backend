@@ -14,11 +14,11 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PdfEndpoint {
 
-    private final DeletePDFUseCase deletePDFUseCase;
+    private final DeletePdfUseCase deletePDFUseCase;
 
     @DeleteMapping("/{fileUUID}")
-    public ResponseEntity<DeletePDFResponse> deletePdf(@PathVariable UUID fileUUID) {
-        DeletePDFResponse response = deletePDFUseCase.execute(new DeletePDFCommand(fileUUID));
+    public ResponseEntity<DeletePdfResponse> deletePdf(@PathVariable UUID fileUUID) {
+        DeletePdfResponse response = deletePDFUseCase.execute(new DeletePdfCommand(fileUUID));
         return ResponseEntity.ok(response);
     }
 }

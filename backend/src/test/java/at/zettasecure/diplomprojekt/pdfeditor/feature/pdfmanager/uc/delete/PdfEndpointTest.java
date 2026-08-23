@@ -27,13 +27,13 @@ class PdfEndpointTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private DeletePDFUseCase deletePDFUseCase;
+    private DeletePdfUseCase deletePDFUseCase;
 
     @Test
     void delete_pdf_should_return_200_when_successfull() throws Exception {
         UUID fileUUID = UUID.randomUUID();
-        when(deletePDFUseCase.execute(any(DeletePDFCommand.class)))
-                .thenReturn(new DeletePDFResponse(fileUUID, true));
+        when(deletePDFUseCase.execute(any(DeletePdfCommand.class)))
+                .thenReturn(new DeletePdfResponse(fileUUID, true));
 
         mockMvc.perform(delete("/api/pdf/{fileUUID}", fileUUID)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -45,7 +45,7 @@ class PdfEndpointTest {
     @Test
     void delete_pdf_should_return_404_when_not_found() throws Exception {
         UUID fileUUID = UUID.randomUUID();
-        when(deletePDFUseCase.execute(any(DeletePDFCommand.class)))
+        when(deletePDFUseCase.execute(any(DeletePdfCommand.class)))
                 .thenThrow(new PdfNotFoundException("PDF not found"));
 
         mockMvc.perform(delete("/api/pdf/{fileUUID}", fileUUID)
