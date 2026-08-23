@@ -19,12 +19,12 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UploadPDFUseCase implements UseCase<UploadPDFCommand, Void> {
+public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PDF> {
   private final PDFRepository pdfRepository;
 
   @Override
   @Transactional
-  public Void execute(UploadPDFCommand input) throws WrongMediaType {
+  public PDF execute(UploadPDFCommand input) throws WrongMediaType {
     if (input == null || input.file() == null || input.file().isEmpty()) {
       throw new IllegalArgumentException("Failed to store empty file.");
     }
@@ -63,17 +63,15 @@ public class UploadPDFUseCase implements UseCase<UploadPDFCommand, Void> {
         Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
       }
 
-      persistInfo(input.name(), fileUUID);
+      return persistInfo(input.name(), fileUUID);
     } catch (IOException e) {
       throw new RuntimeException("Failed to store file", e);
     }
-
-    return null;
   }
 
   @Transactional
-  public void persistInfo(String name, UUID fileUUID) {
-    pdfRepository.save(PDF.builder().name(name).fileUUID(fileUUID).build());
+  public PDF persistInfo(String name, UUID fileUUID) {
+    return pdfRepository.save(PDF.builder().name(name).fileUUID(fileUUID).build());
   }
 }
 
