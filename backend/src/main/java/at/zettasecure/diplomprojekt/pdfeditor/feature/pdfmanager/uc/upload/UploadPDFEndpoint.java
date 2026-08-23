@@ -21,9 +21,9 @@ public class UploadPDFEndpoint {
 
   @PostMapping(value = "/")
   @ResponseStatus(CREATED)
-  public ResponseEntity<Void> handleFileUpload(@RequestParam("file") MultipartFile file) {
+  public ResponseEntity<Void> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) {
     try {
-      uploadPDFUseCase.execute(new UploadPDFCommand(file));
+      uploadPDFUseCase.execute(new UploadPDFCommand(file, name));
     }
     catch (WrongMediaType e) {
       return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();

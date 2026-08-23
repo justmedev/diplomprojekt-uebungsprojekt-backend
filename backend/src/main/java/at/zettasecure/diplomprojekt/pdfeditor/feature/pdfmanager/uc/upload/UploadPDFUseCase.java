@@ -1,7 +1,13 @@
 package at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.uc.upload;
 
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDF;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDFRepository;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.UseCase;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.exceptions.WrongMediaType;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -9,13 +15,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
-import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class UploadPDFUseCase implements UseCase<UploadPDFCommand, Void> {
+  private final PDFRepository pdfRepository;
 
   @Override
+  @Transactional
   public Void execute(UploadPDFCommand input) throws WrongMediaType {
     if (input == null || input.file() == null || input.file().isEmpty()) {
       throw new IllegalArgumentException("Failed to store empty file.");
@@ -34,39 +42,38 @@ public class UploadPDFUseCase implements UseCase<UploadPDFCommand, Void> {
       throw new WrongMediaType("Failed to store file. Only PDF files are allowed!");
     }
 
-    Path rootLocation = Paths.get("uploads");
-    Path destinationFile;
+    try (InputStream is = input.file().getInputStream()) {
+      byte[] header = new byte[4];
+      int bytesRead = is.read(header);
+      if (bytesRead < 4 || !new String(header, 0, 4, StandardCharsets.US_ASCII).equals("%PDF")) {
+        throw new WrongMediaType("Failed to store file. File content is not a valid PDF!");
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Could not verify file content", e);
+    }
+
+    UUID fileUUID = UUID.randomUUID();
+    Path rootLocation = Paths.get("uploads").toAbsolutePath().normalize();
     try {
       Files.createDirectories(rootLocation);
-      destinationFile = rootLocation.resolve(
-              Paths.get(Objects.requireNonNull(originalFilename)))
-          .normalize().toAbsolutePath();
-      if (!destinationFile.getParent().equals(rootLocation.toAbsolutePath())) {
-        throw new SecurityException("Cannot store file outside current directory.");
-      }
+      Path destinationFile = rootLocation.resolve(fileUUID + ".pdf").normalize();
+
       try (InputStream inputStream = input.file().getInputStream()) {
+        //noinspection JvmTaintAnalysis
         Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
       }
+
+      persistInfo(input.name(), fileUUID);
     } catch (IOException e) {
       throw new RuntimeException("Failed to store file", e);
     }
 
-    try (InputStream is = Files.newInputStream(destinationFile)) {
-      byte[] header = new byte[4];
-      int bytesRead = is.read(header);
-      if (bytesRead < 4 || !new String(header, 0, 4, StandardCharsets.US_ASCII).equals("%PDF")) {
-        Files.deleteIfExists(destinationFile);
-        throw new WrongMediaType("Failed to store file. File content is not a valid PDF!");
-      }
-    } catch (IOException e) {
-      try {
-        Files.deleteIfExists(destinationFile);
-      } catch (IOException ignored) {
-      }
-      throw new RuntimeException("Could not verify file content", e);
-    }
-
     return null;
+  }
+
+  @Transactional
+  public void persistInfo(String name, UUID fileUUID) {
+    pdfRepository.save(PDF.builder().name(name).fileUUID(fileUUID).build());
   }
 }
 
