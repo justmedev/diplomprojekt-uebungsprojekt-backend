@@ -1,0 +1,22 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+
+### Send a form with the text and file fields
+POST http://localhost:8080/api/pdfmanager/
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="eng-pres-windrush-scandal.pdf"
+Content-Type: application/pdf
+
+< ./eng-pres-windrush-scandal.pdf
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+Hello World
+--WebAppBoundary--
