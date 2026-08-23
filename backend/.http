@@ -22,5 +22,8 @@ Hello World
 --WebAppBoundary--
 
 
-### Get all pdfs
-GET http://localhost:8080/api/pdfs
+### Get all pdf infos
+GET http://localhost:8080/api/pdfinfos
+
+###
+GET http://localhost:8080/api/pdfs/1

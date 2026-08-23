@@ -1,13 +1,14 @@
 package at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.uc.upload;
 
-import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDF;
-import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDFRepository;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfo;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfoRepository;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.UseCase;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.exceptions.WrongMediaType;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -15,16 +16,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
-public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PDF> {
-  private final PDFRepository pdfRepository;
+public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PdfInfo> {
+  private final PdfInfoRepository pdfInfoRepository;
 
   @Override
   @Transactional
-  public PDF execute(UploadPDFCommand input) throws WrongMediaType {
+  public PdfInfo execute(UploadPDFCommand input) throws WrongMediaType {
     if (input == null || input.file() == null || input.file().isEmpty()) {
       throw new IllegalArgumentException("Failed to store empty file.");
     }
@@ -70,8 +72,8 @@ public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PDF> {
   }
 
   @Transactional
-  public PDF persistInfo(String name, UUID fileUUID) {
-    return pdfRepository.save(PDF.builder().name(name).fileUUID(fileUUID).build());
+  public PdfInfo persistInfo(String name, UUID fileUUID) {
+    return pdfInfoRepository.save(PdfInfo.builder().name(name).fileUUID(fileUUID).build());
   }
 }
 
