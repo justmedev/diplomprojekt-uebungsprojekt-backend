@@ -4,9 +4,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.http.HttpStatus.CREATED;
 
-import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDF;
-import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain.PDFDto;
-import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.uc.get.GetPDFByIdEndpoint;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfoDto;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.uc.get.GetPdfInfoByIdEndpoint;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.exceptions.WrongMediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +26,10 @@ public class UploadPDFEndpoint {
 
   @PostMapping(value = "/")
   @ResponseStatus(CREATED)
-  public ResponseEntity<PDFDto> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) {
+  public ResponseEntity<PdfInfoDto> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) {
     try {
       var pdf = uploadPDFUseCase.execute(new UploadPDFCommand(file, name));
-      return ResponseEntity.created(linkTo(methodOn(GetPDFByIdEndpoint.class).getPDFById(pdf.getId())).toUri()).body(new PDFDto(pdf));
+      return ResponseEntity.created(linkTo(methodOn(GetPdfInfoByIdEndpoint.class).getPdfInfoById(pdf.getId())).toUri()).body(new PdfInfoDto(pdf));
     }
     catch (WrongMediaType e) {
       return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();

@@ -10,7 +10,7 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 
 --WebAppBoundary
-Content-Disposition: form-data; name="file"; filename="eng-pres-windrush-scandal.pdf"
+Content-Disposition: form-data; name="file"; filename="eng-pres-windrush-scandal.pdfInfo"
 Content-Type: application/pdf
 
 < ./eng-pres-windrush-scandal.pdf
@@ -22,5 +22,5 @@ Hello World
 --WebAppBoundary--
 
 
-### Get all pdfs
-GET http://localhost:8080/api/pdfs
+### Get all pdf infos
+GET http://localhost:8080/api/pdfinfos

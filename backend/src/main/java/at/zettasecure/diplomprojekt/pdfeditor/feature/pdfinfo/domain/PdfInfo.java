@@ -1,11 +1,9 @@
-package at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.domain;
+package at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +13,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PDF {
+public class PdfInfo {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(nullable = false)
