@@ -2,13 +2,13 @@ package at.zettasecure.diplomprojekt.pdfeditor.feature.pdfmanager.uc.upload;
 
 import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfo;
 import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfoRepository;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.thumbnailgenerator.uc.generate.ThumbnailGenerationUseCase;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.UseCase;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.exceptions.WrongMediaType;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -16,13 +16,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PdfInfo> {
   private final PdfInfoRepository pdfInfoRepository;
+  private final ThumbnailGenerationUseCase thumbnailGenerationUseCase;
 
   @Override
   @Transactional
@@ -55,7 +55,7 @@ public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PdfInfo> {
     }
 
     UUID fileUUID = UUID.randomUUID();
-    Path rootLocation = Paths.get("uploads").toAbsolutePath().normalize();
+    Path rootLocation = Paths.get("uploads/pdfs").toAbsolutePath().normalize();
     try {
       Files.createDirectories(rootLocation);
       Path destinationFile = rootLocation.resolve(fileUUID + ".pdf").normalize();
@@ -64,7 +64,7 @@ public class UploadPDFUseCase implements UseCase<UploadPDFCommand, PdfInfo> {
         //noinspection JvmTaintAnalysis
         Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
       }
-
+      thumbnailGenerationUseCase.generateThumbnail(destinationFile, fileUUID);
       return persistInfo(input.name(), fileUUID);
     } catch (IOException e) {
       throw new RuntimeException("Failed to store file", e);
