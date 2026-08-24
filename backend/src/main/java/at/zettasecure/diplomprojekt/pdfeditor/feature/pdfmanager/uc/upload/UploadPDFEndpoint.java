@@ -6,6 +6,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.domain.PdfInfoDto;
 import at.zettasecure.diplomprojekt.pdfeditor.feature.pdfinfo.uc.get.GetPdfInfoByIdEndpoint;
+import at.zettasecure.diplomprojekt.pdfeditor.feature.thumbnailgenerator.uc.get.GetThumbnailUseCase;
 import at.zettasecure.diplomprojekt.pdfeditor.shared.exceptions.WrongMediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/pdfs")
 public class UploadPDFEndpoint {
   private final UploadPDFUseCase uploadPDFUseCase;
-  public UploadPDFEndpoint(UploadPDFUseCase uploadPDFUseCase) {
+  private final GetThumbnailUseCase getThumbnailUseCase;
+  public UploadPDFEndpoint(UploadPDFUseCase uploadPDFUseCase, GetThumbnailUseCase getThumbnailUseCase) {
     this.uploadPDFUseCase = uploadPDFUseCase;
+    this.getThumbnailUseCase = getThumbnailUseCase;
   }
 
   @PostMapping(value = "/")
@@ -29,7 +32,8 @@ public class UploadPDFEndpoint {
   public ResponseEntity<PdfInfoDto> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) {
     try {
       var pdf = uploadPDFUseCase.execute(new UploadPDFCommand(file, name));
-      return ResponseEntity.created(linkTo(methodOn(GetPdfInfoByIdEndpoint.class).getPdfInfoById(pdf.getId())).toUri()).body(new PdfInfoDto(pdf));
+      String thumbnail = getThumbnailUseCase.execute(pdf.getId()).orElse(null);
+      return ResponseEntity.created(linkTo(methodOn(GetPdfInfoByIdEndpoint.class).getPdfInfoById(pdf.getId())).toUri()).body(new PdfInfoDto(pdf, thumbnail));
     }
     catch (WrongMediaType e) {
       return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();

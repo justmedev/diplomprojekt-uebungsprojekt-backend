@@ -17,6 +17,6 @@ public class GetPdfUseCase implements UseCase<Long, Optional<File>> {
   @Override
   public Optional<File> execute(Long id) {
     var info = getPdfInfoByIdUseCase.execute(id);
-    return info.map(pdfInfo -> new File(Paths.get("uploads").normalize().resolve(pdfInfo.getFileUUID() + ".pdf").toString()));
+    return info.map(pdfInfo -> new File(Paths.get("uploads/pdfs").normalize().resolve(pdfInfo.getFileUUID() + ".pdf").toString()));
   }
 }
